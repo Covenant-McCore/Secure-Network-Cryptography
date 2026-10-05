@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Privacy-Preserving Analytics — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Privacy-Preserving Analytics</h1>
+        <p class="muted">
+            TenSEAL BFV homomorphic addition. The server performs arithmetic
+            on ciphertext without seeing plaintext inputs.
+        </p>
+    </div>
+    <a class="btn-secondary" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+</section>
+
+<div class="compose-grid">
+    <section class="panel">
+        <h2>Inputs</h2>
+        <label for="an-a">Encrypted value A</label>
+        <input type="number" id="an-a" value="135">
+        <label for="an-b">Encrypted value B</label>
+        <input type="number" id="an-b" value="105">
+        <button id="run-an" class="btn-primary btn-block">Compute encrypted sum</button>
+    </section>
+
+    <section class="panel">
+        <h2>Result</h2>
+        <pre id="an-output" class="ciphertext">Awaiting run…</pre>
+    </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/labs.js') }}"></script>
+<script>
+document.getElementById('run-an').addEventListener('click', () => {
+    runLab(null, "{{ url_for('analytics.run') }}",
+           document.getElementById('an-output'), () => ({
+               a: parseInt(document.getElementById('an-a').value, 10),
+               b: parseInt(document.getElementById('an-b').value, 10),
+           }));
+});
+</script>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Security Dashboard — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Security Dashboard</h1>
+        <p class="muted">
+            Signed in as <strong>{{ current_user.full_name }}</strong> ·
+            Role <span class="role-badge">{{ current_user.role }}</span> ·
+            Clearance {{ current_user.clearance_level }}
+        </p>
+    </div>
+    <div class="status-pill status-{{ 'ok' if system_status == 'PROTECTED' else 'warn' }}">
+        SYSTEM STATUS: {{ system_status }}
+    </div>
+</section>
+
+<section class="metric-grid">
+    <div class="metric"><span class="metric-label">Total Users</span><span class="metric-value">{{ metrics.total_users }}</span></div>
+    <div class="metric"><span class="metric-label">Active Users</span><span class="metric-value">{{ metrics.active_users }}</span></div>
+    <div class="metric"><span class="metric-label">Secure Sessions</span><span class="metric-value">{{ metrics.secure_sessions }}</span></div>
+    <div class="metric"><span class="metric-label">Encrypted Messages</span><span class="metric-value">{{ metrics.encrypted_messages }}</span></div>
+    <div class="metric"><span class="metric-label">Secure Files</span><span class="metric-value">{{ metrics.secure_files }}</span></div>
+    <div class="metric"><span class="metric-label">Failed Logins</span><span class="metric-value">{{ metrics.failed_logins }}</span></div>
+    <div class="metric"><span class="metric-label">Unauthorized Attempts</span><span class="metric-value">{{ metrics.unauthorized_attempts }}</span></div>
+    <div class="metric"><span class="metric-label">Integrity Failures</span><span class="metric-value">{{ metrics.integrity_failures }}</span></div>
+    <div class="metric"><span class="metric-label">Crypto Operations</span><span class="metric-value">{{ metrics.crypto_operations }}</span></div>
+</section>
+
+<section class="panel">
+    <h2>Modules</h2>
+    <p class="muted">Modules are enabled progressively. The list below reflects what is available in the current build.</p>
+<ul class="module-list">
+    <li><a href="{{ url_for('messages.index') }}"><strong>Secure Messaging</strong></a> — ML-KEM-768 + AES-256-GCM + Ed25519</li>
+    <li><a href="{{ url_for('files.index') }}"><strong>Secure File Transfer</strong></a> — ML-KEM-768 + AES-256-GCM + SHA-256 + Ed25519</li>
+    <li><a href="{{ url_for('crypto_lab.pqc_page') }}"><strong>Post-Quantum Lab</strong></a> — ML-KEM-768</li>
+    <li><a href="{{ url_for('crypto_lab.signatures_page') }}"><strong>Signature Lab</strong></a> — Ed25519</li>
+    <li><a href="{{ url_for('crypto_lab.integrity_page') }}"><strong>Integrity Lab</strong></a> — SHA-256</li>
+    <li><a href="{{ url_for('security.access_control_page') }}"><strong>Access Control Lab</strong></a> — RBAC + CP-ABE</li>
+    <li><a href="{{ url_for('analytics.page') }}"><strong>Privacy-Preserving Analytics</strong></a> — TenSEAL BFV</li>
+    <li><a href="{{ url_for('security.simulation_page') }}"><strong>Threat Simulation</strong></a> — six scenarios</li>
+    <li><a href="{{ url_for('security.intel_page') }}"><strong>Security Intelligence</strong></a> — AbuseIPDB + IPinfo + HIBP</li>
+    <li><a href="{{ url_for('monitor.index') }}"><strong>Security Monitor</strong></a> — live metrics + charts</li>
+    <li><a href="{{ url_for('audit.index') }}"><strong>Audit Log</strong></a> — filterable event history</li>
+    <li><a href="{{ url_for('evaluation.index') }}"><strong>Performance Evaluation</strong></a> — benchmarks</li>
+    <li><a href="{{ url_for('reports.index') }}"><strong>Reports</strong></a> — summary + CSV exports</li>
+</ul>
+</section>
+{% endblock %}

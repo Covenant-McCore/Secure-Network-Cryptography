@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Access Control Lab — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Access Control Lab</h1>
+        <p class="muted">
+            Server-enforced RBAC plus a CP-ABE policy demonstration.
+        </p>
+    </div>
+    <a class="btn-secondary" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+</section>
+
+<section class="panel">
+    <h2>Your session</h2>
+    <dl class="kv">
+        <dt>Role</dt><dd><span class="pill pill-info">{{ current_role }}</span></dd>
+        <dt>CP-ABE attributes</dt>
+        <dd class="mono small">{{ current_attributes | join(', ') }}</dd>
+        <dt>CP-ABE availability</dt>
+        <dd>
+            {% if cpabe_available %}
+                <span class="pill pill-ok">AVAILABLE (local demo)</span>
+            {% else %}
+                <span class="pill pill-warn">NOT AVAILABLE (deployment)</span>
+            {% endif %}
+        </dd>
+    </dl>
+</section>
+
+<div class="compose-grid">
+    <section class="panel">
+        <h2>RBAC decision</h2>
+        <label for="ac-resource">Resource name</label>
+        <input type="text" id="ac-resource" value="Payroll Records">
+        <label for="ac-role">Required role</label>
+        <select id="ac-role">
+            <option>ADMINISTRATOR</option>
+            <option>SECURITY_OFFICER</option>
+            <option>DOCTOR</option>
+            <option>RECORDS_OFFICER</option>
+            <option>LABORATORY_OFFICER</option>
+        </select>
+        <button id="run-rbac" class="btn-primary btn-block">Evaluate</button>
+        <pre id="rbac-output" class="ciphertext" style="margin-top:14px;">Awaiting run…</pre>
+    </section>
+
+    <section class="panel">
+        <h2>CP-ABE policy test</h2>
+        <label for="ac-policy">Access policy</label>
+        <input type="text" id="ac-policy"
+               value="ROLE:DOCTOR and DEPT:Clinical and ORG:org-lagos-general">
+        <label for="ac-message">Message</label>
+        <input type="text" id="ac-message"
+               value="PATIENT_REF:9942 · CLASSIFICATION:CONFIDENTIAL">
+        <button id="run-cpabe" class="btn-primary btn-block"
+                {% if not cpabe_available %}disabled{% endif %}>
+            Run CP-ABE encrypt/decrypt
+        </button>
+        <pre id="cpabe-output" class="ciphertext" style="margin-top:14px;">Awaiting run…</pre>
+    </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/labs.js') }}"></script>
+<script>
+document.getElementById('run-rbac').addEventListener('click', () => {
+    runLab(null, "{{ url_for('security.access_control_rbac') }}",
+           document.getElementById('rbac-output'), () => ({
+               resource: document.getElementById('ac-resource').value,
+               required_role: document.getElementById('ac-role').value,
+           }));
+});
+const cpabeBtn = document.getElementById('run-cpabe');
+if (cpabeBtn && !cpabeBtn.disabled) {
+    cpabeBtn.addEventListener('click', () => {
+        runLab(null, "{{ url_for('security.access_control_cpabe') }}",
+               document.getElementById('cpabe-output'), () => ({
+                   policy: document.getElementById('ac-policy').value,
+                   message: document.getElementById('ac-message').value,
+               }));
+    });
+}
+</script>
+{% endblock %}

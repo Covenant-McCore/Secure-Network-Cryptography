@@ -1,0 +1,9 @@
+# CRYPTO-NET local development and testing requirements
+#
+# This file extends the deployment requirements with development/test tools.
+# Real CP-ABE (Charm-Crypto + PBC) is installed separately under ~/charm
+# and is NOT a normal pip dependency of the Flask deployment.
+
+-r requirements.txt
+
+pytest==8.3.3

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CRYPTO-NET{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <a href="{{ url_for('dashboard.landing') }}">
+                <span class="brand-mark">⬢</span>
+                <span class="brand-name">CRYPTO-NET</span>
+            </a>
+            <span class="brand-sub">Advanced Cryptographic Network Security Platform</span>
+        </div>
+        <nav class="mainnav">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+		<a href="{{ url_for('security.intel_page') }}">Security Intel</a>
+		<a href="{{ url_for('monitor.index') }}">Monitor</a>
+		<a href="{{ url_for('audit.index') }}">Audit Log</a>
+		<a href="{{ url_for('evaluation.index') }}">Evaluation</a>
+		<a href="{{ url_for('reports.index') }}">Reports</a>
+		<a href="{{ url_for('dashboard.about') }}">About</a>
+                <span class="userchip">
+                    <strong>{{ current_user.full_name }}</strong>
+                    <span class="role-badge">{{ current_user.role }}</span>
+                </span>
+                <form method="POST" action="{{ url_for('auth.logout') }}" class="inline-form">
+                    <button type="submit" class="btn-ghost">Sign out</button>
+                </form>
+            {% else %}
+                <a href="{{ url_for('dashboard.landing') }}">Home</a>
+                <a href="{{ url_for('dashboard.about') }}">About</a>
+                <a class="btn-primary" href="{{ url_for('auth.login') }}">Sign in</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="page">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <span>CRYPTO-NET · Final-Year Computer Science Project</span>
+        <span>A Web-Based Prototype for Secure Communication and Information Protection in Digital Organizations</span>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

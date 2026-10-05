@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Signature Lab — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Digital Signature Lab</h1>
+        <p class="muted">
+            Ed25519 sign / verify. Four test cases: original, modified
+            message, wrong public key, modified signature.
+        </p>
+    </div>
+    <a class="btn-secondary" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+</section>
+
+<div class="compose-grid">
+    <section class="panel">
+        <h2>Inputs</h2>
+        <label for="sig-message">Original message</label>
+        <input type="text" id="sig-message"
+               value="Transfer NGN 100,000 to Account 00112233.">
+        <label for="sig-modified">Modified message</label>
+        <input type="text" id="sig-modified"
+               value="Transfer NGN 900,000 to Account 00112233.">
+        <button id="run-sig" class="btn-primary btn-block">Run tests</button>
+        <p class="muted small">
+            Ed25519 is used as a reliable classical signature. ML-DSA
+            (FIPS 204) is documented as future work.
+        </p>
+    </section>
+
+    <section class="panel">
+        <h2>Result</h2>
+        <pre id="sig-output" class="ciphertext">Awaiting run…</pre>
+    </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/labs.js') }}"></script>
+<script>
+document.getElementById('run-sig').addEventListener('click', () => {
+    runLab(null, "{{ url_for('crypto_lab.signatures_run') }}",
+           document.getElementById('sig-output'), () => ({
+               message:  document.getElementById('sig-message').value,
+               modified: document.getElementById('sig-modified').value,
+           }));
+});
+</script>
+{% endblock %}

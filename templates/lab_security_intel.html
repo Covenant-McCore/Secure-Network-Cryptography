@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Security Intelligence — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Security Intelligence</h1>
+        <p class="muted">
+            IP reputation (AbuseIPDB) and network context (IPinfo Lite)
+            as supporting intelligence. Cryptographic protections operate
+            independently of these lookups.
+        </p>
+    </div>
+    <a class="btn-secondary" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+</section>
+
+<div class="compose-grid">
+    <section class="panel">
+        <h2>Look up an IP address</h2>
+        <label for="ip-input">IP address (IPv4 or IPv6)</label>
+        <input type="text" id="ip-input" value="8.8.8.8">
+        <button id="run-ip" class="btn-primary btn-block">Query reputation</button>
+
+        <h2 style="margin-top: 24px;">Password breach check</h2>
+        <p class="muted small">
+            Uses the HIBP k-anonymity range API. Only the first 5 characters
+            of the SHA-1 hash leave this server. The password itself is
+            never transmitted.
+        </p>
+        <label for="pw-input">Password to check</label>
+        <input type="password" id="pw-input" autocomplete="new-password">
+        <button id="run-pw" class="btn-primary btn-block">Check password</button>
+    </section>
+
+    <section class="panel">
+        <h2>Result</h2>
+        <pre id="intel-output" class="ciphertext">Awaiting run…</pre>
+    </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/labs.js') }}"></script>
+<script>
+document.getElementById('run-ip').addEventListener('click', () => {
+    runLab(null,
+        "{{ url_for('security.ip_reputation') }}",
+        document.getElementById('intel-output'),
+        () => ({ ip: document.getElementById('ip-input').value }));
+});
+
+document.getElementById('run-pw').addEventListener('click', async () => {
+    const out = document.getElementById('intel-output');
+    out.textContent = "Checking…";
+    const password = document.getElementById('pw-input').value;
+    if (!password) { out.textContent = "Enter a password first."; return; }
+    try {
+        const res = await fetch("{{ url_for('security.check_password') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({ password }),
+        });
+        const data = await res.json();
+        // Never echo the password back, even on success.
+        out.textContent = JSON.stringify(data, null, 2);
+    } catch (err) {
+        out.textContent = "Error: " + err;
+    }
+});
+</script>
+{% endblock %}

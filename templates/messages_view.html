@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Message — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Secure Message</h1>
+        <p class="muted">
+            From <strong>{{ sender_display }}</strong> ·
+            {{ message.createdAt.strftime('%Y-%m-%d %H:%M UTC') if message.createdAt }}
+        </p>
+    </div>
+    <a class="btn-secondary" href="{{ url_for('messages.index') }}">Back</a>
+</section>
+
+{% if plaintext %}
+<section class="panel">
+    <div class="verify-strip">
+        <span class="pill pill-{{ 'ok' if plaintext.signature_verified else 'warn' }}">
+            Signature: {{ 'VERIFIED' if plaintext.signature_verified else 'FAILED' }}
+        </span>
+        <span class="pill pill-{{ 'ok' if plaintext.message_hash_matches else 'warn' }}">
+            SHA-256 fingerprint: {{ 'MATCH' if plaintext.message_hash_matches else 'MISMATCH' }}
+        </span>
+        <span class="pill pill-ok">AES-256-GCM: AUTHENTICATED</span>
+    </div>
+
+    <h2>{{ plaintext.subject }}</h2>
+    <pre class="plaintext-body">{{ plaintext.body }}</pre>
+</section>
+{% else %}
+<section class="panel">
+    <p class="muted">This message is sealed. Click below to verify its signature and decrypt it.</p>
+    <form method="POST" action="{{ url_for('messages.decrypt', message_id=message.messageId) }}">
+        <button type="submit" class="btn-primary">Verify &amp; Decrypt</button>
+    </form>
+</section>
+{% endif %}
+
+<section class="panel">
+    <h2>Envelope metadata</h2>
+    <dl class="kv">
+        <dt>Message ID</dt><dd class="mono">{{ message.messageId }}</dd>
+        <dt>KEM</dt><dd>{{ message.envelope.kemAlgorithm }}</dd>
+        <dt>KDF</dt><dd>{{ message.envelope.kdfAlgorithm }}</dd>
+        <dt>Encryption</dt><dd>{{ message.envelope.encryptionAlgorithm }}</dd>
+        <dt>Signature</dt><dd>{{ message.envelope.signatureAlgorithm }}</dd>
+        <dt>SHA-256 (body)</dt>
+        <dd class="mono small">{{ message.envelope.messageHash }}</dd>
+        <dt>KEM ciphertext size</dt>
+        <dd>{{ (message.envelope.kemCiphertext | length * 3 / 4) | int }} bytes (base64)</dd>
+        <dt>Status</dt><dd>{{ message.status }}</dd>
+    </dl>
+</section>
+{% endblock %}

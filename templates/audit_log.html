@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Audit Log — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Audit Log</h1>
+        <p class="muted">
+            Immutable record of every security-relevant event. Filter by
+            type or user. Export via <a href="{{ url_for('reports.export_events_csv') }}">CSV</a>.
+        </p>
+    </div>
+</section>
+
+<form method="GET" class="filter-bar">
+    <label>Event type
+        <select name="type">
+            <option value="">All</option>
+            {% for t in all_types %}
+                <option value="{{ t }}" {% if t == selected_type %}selected{% endif %}>{{ t }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>User ID
+        <input type="text" name="user" value="{{ selected_user }}" placeholder="userId">
+    </label>
+    <label>Limit
+        <input type="number" name="limit" value="100" min="10" max="500">
+    </label>
+    <button type="submit" class="btn-primary">Apply</button>
+</form>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Timestamp</th>
+            <th>Event</th>
+            <th>User</th>
+            <th>Resource</th>
+            <th>Result</th>
+            <th>Severity</th>
+            <th>Source IP</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for e in events %}
+        <tr>
+            <td class="mono small">{{ e.timestamp }}</td>
+            <td><span class="pill pill-{{ 'ok' if 'SUCCESS' in (e.result or '') else ('warn' if e.severity == 'WARNING' else 'info') }}">{{ e.eventType }}</span></td>
+            <td class="mono small">{{ e.userId or '—' }}</td>
+            <td class="mono small">{{ e.resource or '—' }}</td>
+            <td class="mono small">{{ e.result or '—' }}</td>
+            <td class="mono small">{{ e.severity or '—' }}</td>
+            <td class="mono small">{{ e.sourceIp or '—' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

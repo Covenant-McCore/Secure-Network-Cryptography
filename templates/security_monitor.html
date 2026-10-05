@@ -1,0 +1,219 @@
+cat > templates/security_monitor.html <<'HTML'
+{% extends "base.html" %}
+{% block title %}Security Monitor — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Security Monitor</h1>
+        <p class="muted">
+            Live security posture across all modules.
+            <span id="monitor-updated">Loading...</span>
+        </p>
+    </div>
+    <span class="status-pill status-ok">PROTECTED</span>
+</section>
+
+<section class="metric-grid" id="monitor-metrics">
+    <div class="metric">
+        <span class="metric-label">Secure Sessions</span>
+        <span class="metric-value" id="m-sessions">—</span>
+    </div>
+
+    <div class="metric">
+        <span class="metric-label">Encrypted Messages</span>
+        <span class="metric-value" id="m-messages">—</span>
+    </div>
+
+    <div class="metric">
+        <span class="metric-label">Secure Files</span>
+        <span class="metric-value" id="m-files">—</span>
+    </div>
+
+    <div class="metric">
+        <span class="metric-label">Failed Logins</span>
+        <span class="metric-value" id="m-failed">—</span>
+    </div>
+
+    <div class="metric">
+        <span class="metric-label">Unauthorized Attempts</span>
+        <span class="metric-value" id="m-unauth">—</span>
+    </div>
+
+    <div class="metric">
+        <span class="metric-label">Integrity Failures</span>
+        <span class="metric-value" id="m-integrity">—</span>
+    </div>
+
+    <div class="metric">
+        <span class="metric-label">Signature Failures</span>
+        <span class="metric-value" id="m-signature">—</span>
+    </div>
+</section>
+
+<div class="chart-grid">
+    <section class="panel">
+        <h2>Event Timeline (14 Days)</h2>
+        <canvas id="timeline-chart" height="140"></canvas>
+    </section>
+
+    <section class="panel">
+        <h2>Event Type Distribution (7 Days)</h2>
+        <canvas id="distribution-chart" height="140"></canvas>
+    </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+let timelineChart = null;
+let distributionChart = null;
+
+function setMetric(id, value) {
+    const element = document.getElementById(id);
+
+    if (element) {
+        element.textContent = value ?? 0;
+    }
+}
+
+function updateCharts(data) {
+    const timelineCanvas = document.getElementById("timeline-chart");
+    const distributionCanvas = document.getElementById("distribution-chart");
+
+    if (timelineChart) {
+        timelineChart.destroy();
+    }
+
+    if (distributionChart) {
+        distributionChart.destroy();
+    }
+
+    timelineChart = new Chart(timelineCanvas, {
+        type: "line",
+        data: {
+            labels: data.timeline.labels,
+            datasets: [
+                {
+                    label: "Logins",
+                    data: data.timeline.logins,
+                    borderColor: "#38bdf8",
+                    tension: 0.3
+                },
+                {
+                    label: "Failures",
+                    data: data.timeline.failures,
+                    borderColor: "#ef4444",
+                    tension: 0.3
+                },
+                {
+                    label: "Crypto Operations",
+                    data: data.timeline.crypto,
+                    borderColor: "#22c55e",
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: "#e2e8f0"
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: "#94a3b8"
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: "#94a3b8"
+                    }
+                }
+            }
+        }
+    });
+
+    distributionChart = new Chart(distributionCanvas, {
+        type: "doughnut",
+        data: {
+            labels: data.distribution.labels,
+            datasets: [
+                {
+                    data: data.distribution.counts,
+                    backgroundColor: [
+                        "#38bdf8",
+                        "#22c55e",
+                        "#f59e0b",
+                        "#ef4444",
+                        "#818cf8",
+                        "#06b6d4",
+                        "#a855f7",
+                        "#84cc16",
+                        "#f43f5e",
+                        "#14b8a6"
+                    ]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: "#e2e8f0"
+                    }
+                }
+            }
+        }
+    });
+}
+
+async function refreshMonitor() {
+    const updated = document.getElementById("monitor-updated");
+
+    try {
+        const response = await fetch(
+            "{{ url_for('monitor.data') }}",
+            {
+                credentials: "same-origin",
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        const m = data.metrics;
+
+        setMetric("m-sessions", m.secure_sessions);
+        setMetric("m-messages", m.encrypted_messages);
+        setMetric("m-files", m.secure_files);
+        setMetric("m-failed", m.failed_logins);
+        setMetric("m-unauth", m.unauthorized_attempts);
+        setMetric("m-integrity", m.integrity_failures);
+        setMetric("m-signature", m.signature_failures);
+
+        updateCharts(data);
+
+        updated.textContent =
+            `· Updated ${new Date().toLocaleTimeString()}`;
+    } catch (error) {
+        console.error("Security monitor refresh failed:", error);
+        updated.textContent = "· Unable to refresh data";
+    }
+}
+
+refreshMonitor();
+</script>
+{% endblock %}
+HTML

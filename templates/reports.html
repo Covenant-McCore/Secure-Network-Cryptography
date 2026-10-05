@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Reports — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Reports</h1>
+        <p class="muted">Summary reports and data exports for thesis documentation.</p>
+    </div>
+</section>
+
+<div class="feature-grid">
+    <div class="feature-card">
+        <h3>Security Summary</h3>
+        <p>Live metrics from the last 30 days.</p>
+        <a class="btn-primary" href="{{ url_for('reports.summary') }}">View</a>
+    </div>
+    <div class="feature-card">
+        <h3>Audit Events (CSV)</h3>
+        <p>Download all recorded security events.</p>
+        <a class="btn-primary" href="{{ url_for('reports.export_events_csv') }}">Download</a>
+    </div>
+    <div class="feature-card">
+        <h3>Benchmark Results (CSV)</h3>
+        <p>Download cryptographic performance measurements.</p>
+        <a class="btn-primary" href="{{ url_for('reports.export_benchmarks_csv') }}">Download</a>
+    </div>
+</div>
+{% endblock %}

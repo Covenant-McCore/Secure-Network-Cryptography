@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Secure Messages — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Secure Messages</h1>
+        <p class="muted">
+            Messages are sealed with ML-KEM-768, HKDF-SHA-256, AES-256-GCM,
+            and signed with Ed25519.
+        </p>
+    </div>
+    <a class="btn-primary" href="{{ url_for('messages.compose') }}">Compose</a>
+</section>
+
+<nav class="tabs">
+    <a href="{{ url_for('messages.index', tab='inbox') }}"
+       class="tab {% if tab == 'inbox' %}tab-active{% endif %}">Inbox</a>
+    <a href="{{ url_for('messages.index', tab='sent') }}"
+       class="tab {% if tab == 'sent' %}tab-active{% endif %}">Sent</a>
+</nav>
+
+{% if items %}
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>{{ 'From' if tab == 'inbox' else 'To' }}</th>
+            <th>Status</th>
+            <th>Algorithms</th>
+            <th>Date</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for m in items %}
+        <tr>
+            <td class="mono">
+                {{ (m.senderId if tab == 'sent' else m.senderId) | truncate(20, true) }}
+            </td>
+            <td>
+                <span class="pill pill-{{ 'ok' if m.status == 'read' else 'info' }}">
+                    {{ m.status }}
+                </span>
+            </td>
+            <td class="mono small">
+                {{ m.kemAlgorithm }} · {{ m.encryptionAlgorithm }} · {{ m.signatureAlgorithm }}
+            </td>
+            <td class="mono small">
+                {{ m.createdAt.strftime('%Y-%m-%d %H:%M') if m.createdAt else '—' }}
+            </td>
+            <td>
+                {% if tab == 'sent' %}
+                    <a href="{{ url_for('messages.view_sent', message_id=m.messageId) }}">Open</a>
+                {% else %}
+                    <a href="{{ url_for('messages.view', message_id=m.messageId) }}">Open</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="panel">
+    <p class="muted">No messages yet.
+        <a href="{{ url_for('messages.compose') }}">Send the first one</a>.
+    </p>
+</div>
+{% endif %}
+{% endblock %}

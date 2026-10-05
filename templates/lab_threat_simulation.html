@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Threat Simulation — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Threat Simulation</h1>
+        <p class="muted">
+            Controlled, non-destructive demonstrations of cryptographic
+            protections. Every simulation runs entirely in memory.
+        </p>
+    </div>
+    <a class="btn-secondary" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+</section>
+
+{% set sims = [
+    ('Eavesdropping',         'simulation/eavesdropping', 'sim-eaves'),
+    ('Message tampering',     'simulation/tampering',     'sim-tamper'),
+    ('Unauthorized access',   'simulation/unauthorized',  'sim-unauth'),
+    ('Replay attack',         'simulation/replay',        'sim-replay'),
+    ('Invalid signature',     'simulation/signature',     'sim-sig'),
+    ('Wrong key',             'simulation/wrong-key',     'sim-wrong'),
+] %}
+
+<div class="sim-grid">
+    {% for label, endpoint, anchor in sims %}
+    <section class="panel">
+        <h2>{{ label }}</h2>
+        {% if endpoint == 'simulation/unauthorized' %}
+            <label for="{{ anchor }}-role">Required role</label>
+            <select id="{{ anchor }}-role">
+                <option>ADMINISTRATOR</option>
+                <option>SECURITY_OFFICER</option>
+                <option>DOCTOR</option>
+                <option>RECORDS_OFFICER</option>
+                <option>LABORATORY_OFFICER</option>
+            </select>
+        {% endif %}
+        <button class="btn-primary btn-block sim-run"
+                data-endpoint="{{ url_for('security.' + endpoint.split('/')[1]) if False else '' }}"
+                data-url="{{ url_for('security.' + endpoint.replace('simulation/', 'sim_').replace('-', '_')) }}"
+                data-output="{{ anchor }}-output"
+                data-anchor="{{ anchor }}">
+            Run simulation
+        </button>
+        <pre id="{{ anchor }}-output" class="ciphertext" style="margin-top:14px;">Awaiting run…</pre>
+    </section>
+    {% endfor %}
+</div>
+
+<script src="{{ url_for('static', filename='js/labs.js') }}"></script>
+<script>
+document.querySelectorAll(".sim-run").forEach((btn) => {
+    btn.addEventListener("click", () => {
+        const outputEl = document.getElementById(btn.dataset.output);
+        const anchor = btn.dataset.anchor;
+        const roleSel = document.getElementById(anchor + "-role");
+        const payload = roleSel ? { required_role: roleSel.value } : {};
+        runLab(null, btn.dataset.url, outputEl, () => payload);
+    });
+});
+</script>
+{% endblock %}

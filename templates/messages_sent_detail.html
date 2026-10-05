@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Sent Message — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Sent Message</h1>
+        <p class="muted">
+            To <strong>{{ recipient_display }}</strong> ·
+            {{ message.createdAt.strftime('%Y-%m-%d %H:%M UTC') if message.createdAt }}
+        </p>
+    </div>
+    <a class="btn-secondary" href="{{ url_for('messages.index', tab='sent') }}">Back</a>
+</section>
+
+<section class="panel">
+    <p class="muted">
+        CRYPTO-NET does not store plaintext after sending. Only the recipient
+        can reconstruct the original message. This is a deliberate design
+        choice supporting forward secrecy and eliminating plaintext at rest.
+    </p>
+</section>
+
+<section class="panel">
+    <h2>Envelope metadata</h2>
+    <dl class="kv">
+        <dt>Message ID</dt><dd class="mono">{{ message.messageId }}</dd>
+        <dt>Recipient ID</dt><dd class="mono">{{ message.recipientId }}</dd>
+        <dt>KEM</dt><dd>{{ message.envelope.kemAlgorithm }}</dd>
+        <dt>Encryption</dt><dd>{{ message.envelope.encryptionAlgorithm }}</dd>
+        <dt>Signature</dt><dd>{{ message.envelope.signatureAlgorithm }}</dd>
+        <dt>Status</dt><dd>{{ message.status }}</dd>
+        <dt>Created</dt><dd>{{ message.createdAt }}</dd>
+        {% if message.readAt %}<dt>Read at</dt><dd>{{ message.readAt }}</dd>{% endif %}
+    </dl>
+</section>
+
+<section class="panel">
+    <h2>Ciphertext (first 200 chars)</h2>
+    <pre class="ciphertext">{{ message.envelope.bodyCiphertext[:200] }}…</pre>
+</section>
+{% endblock %}

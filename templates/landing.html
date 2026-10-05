@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}CRYPTO-NET — Advanced Cryptographic Network Security{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Advanced Cryptographic Protection for Digital Organizations</h1>
+    <p class="hero-sub">
+        A web-based prototype demonstrating post-quantum key establishment,
+        authenticated encryption, digital signatures, and policy-based access
+        control for secure organizational communication.
+    </p>
+    <div class="hero-actions">
+        <a class="btn-primary" href="{{ url_for('auth.login') }}">Sign in</a>
+        <a class="btn-secondary" href="{{ url_for('dashboard.about') }}">Learn more</a>
+    </div>
+</section>
+
+<section class="features">
+    <h2>Cryptographic technologies in use</h2>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>AES-256-GCM</h3>
+            <p>Authenticated symmetric encryption for messages and files.</p>
+        </div>
+        <div class="feature-card">
+            <h3>ML-KEM-768</h3>
+            <p>Post-quantum key establishment, resistant to future quantum attacks.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Ed25519</h3>
+            <p>Digital signatures for authenticity and non-repudiation.</p>
+        </div>
+        <div class="feature-card">
+            <h3>CP-ABE (BSW07)</h3>
+            <p>Policy-based access control over encrypted organizational data.</p>
+        </div>
+        <div class="feature-card">
+            <h3>SHA-256 &amp; HKDF-SHA-256</h3>
+            <p>Integrity fingerprinting and session-key derivation.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Homomorphic Analytics</h3>
+            <p>Privacy-preserving computation over encrypted metrics.</p>
+        </div>
+    </div>
+</section>
+
+<section class="objectives">
+    <h2>Security objectives</h2>
+    <ul>
+        <li>Confidentiality of organizational communication</li>
+        <li>Integrity and tamper detection</li>
+        <li>Authentication of senders and recipients</li>
+        <li>Authorization and role-based access control</li>
+        <li>Post-quantum secure key establishment</li>
+        <li>Auditability of every security-relevant event</li>
+    </ul>
+</section>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}File — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>{% if is_sender %}Sent File{% else %}Secure File{% endif %}</h1>
+        <p class="muted">
+            {% if is_sender %}To{% else %}From{% endif %}
+            <strong>{{ sender_display }}</strong> ·
+            {{ file.createdAt.strftime('%Y-%m-%d %H:%M UTC') if file.createdAt }}
+        </p>
+    </div>
+    <a class="btn-secondary"
+       href="{{ url_for('files.index', tab='sent' if is_sender else 'inbox') }}">
+        Back
+    </a>
+</section>
+
+<section class="panel">
+    <h2>Metadata</h2>
+    <dl class="kv">
+        <dt>File ID</dt><dd class="mono">{{ file.fileId }}</dd>
+        <dt>Extension</dt><dd class="mono">.{{ file.fileExtension or 'bin' }}</dd>
+        <dt>Size</dt><dd>{{ (file.fileSize / 1024) | round(2) }} KiB</dd>
+        <dt>Classification</dt><dd><span class="pill pill-info">{{ file.classification }}</span></dd>
+        <dt>SHA-256 (plaintext)</dt><dd class="mono small">{{ file.fileHash }}</dd>
+        <dt>KEM</dt><dd>{{ file.envelope.kemAlgorithm }}</dd>
+        <dt>KDF</dt><dd>{{ file.envelope.kdfAlgorithm }}</dd>
+        <dt>Encryption</dt><dd>{{ file.envelope.encryptionAlgorithm }}</dd>
+        <dt>Signature</dt><dd>{{ file.envelope.signatureAlgorithm }}</dd>
+        <dt>Status</dt><dd>{{ file.status }}</dd>
+    </dl>
+</section>
+
+{% if not is_sender %}
+<section class="panel">
+    <h2>Decrypt &amp; Download</h2>
+    <p class="muted">
+        Clicking Download will verify the Ed25519 signature, decapsulate the
+        ML-KEM shared secret, derive the three AES keys via HKDF, decrypt the
+        content, and confirm the SHA-256 fingerprint before streaming.
+    </p>
+    <form method="POST" action="{{ url_for('files.download', file_id=file.fileId) }}">
+        <button type="submit" class="btn-primary">Verify, Decrypt &amp; Download</button>
+    </form>
+</section>
+{% else %}
+<section class="panel">
+    <p class="muted">
+        CRYPTO-NET does not store the plaintext after upload. Only the
+        recipient can reconstruct the file. This is a deliberate design
+        choice supporting forward secrecy and eliminating plaintext at rest.
+    </p>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Post-Quantum Lab — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Post-Quantum Cryptography Lab</h1>
+        <p class="muted">
+            ML-KEM-768 key establishment, plus HKDF-SHA-256 session-key
+            derivation and AES-256-GCM round-trip.
+        </p>
+    </div>
+    <a class="btn-secondary" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+</section>
+
+<div class="compose-grid">
+    <section class="panel">
+        <h2>Run handshake</h2>
+        <ol class="flow">
+            <li>Alice generates an ML-KEM-768 keypair.</li>
+            <li>Bob encapsulates a shared secret using Alice's public key.</li>
+            <li>Alice decapsulates using her private key.</li>
+            <li>Both parties derive a session key via HKDF-SHA-256.</li>
+            <li>AES-256-GCM encrypts a demonstration message.</li>
+        </ol>
+        <button id="run-pqc" class="btn-primary">Run handshake</button>
+    </section>
+
+    <section class="panel">
+        <h2>Result</h2>
+        <pre id="pqc-output" class="ciphertext">Awaiting run…</pre>
+    </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/labs.js') }}"></script>
+<script>
+document.getElementById('run-pqc').addEventListener('click', () => {
+    runLab(null, "{{ url_for('crypto_lab.pqc_run') }}",
+           document.getElementById('pqc-output'), null);
+});
+</script>
+{% endblock %}

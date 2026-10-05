@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Security Summary — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<h1>Security Summary</h1>
+<p class="muted">Generated {{ metrics.since }} (last 30 days)</p>
+
+<section class="metric-grid">
+    <div class="metric"><span class="metric-label">Total Users</span><span class="metric-value">{{ metrics.total_users }}</span></div>
+    <div class="metric"><span class="metric-label">Active Users</span><span class="metric-value">{{ metrics.active_users }}</span></div>
+    <div class="metric"><span class="metric-label">Secure Sessions</span><span class="metric-value">{{ metrics.secure_sessions }}</span></div>
+    <div class="metric"><span class="metric-label">Encrypted Messages</span><span class="metric-value">{{ metrics.encrypted_messages }}</span></div>
+    <div class="metric"><span class="metric-label">Secure Files</span><span class="metric-value">{{ metrics.secure_files }}</span></div>
+    <div class="metric"><span class="metric-label">Failed Logins</span><span class="metric-value">{{ metrics.failed_logins }}</span></div>
+    <div class="metric"><span class="metric-label">Unauthorized Attempts</span><span class="metric-value">{{ metrics.unauthorized_attempts }}</span></div>
+    <div class="metric"><span class="metric-label">Integrity Failures</span><span class="metric-value">{{ metrics.integrity_failures }}</span></div>
+    <div class="metric"><span class="metric-label">Crypto Operations</span><span class="metric-value">{{ metrics.crypto_operations }}</span></div>
+</section>
+
+<section class="panel">
+    <h2>Recent events</h2>
+    <table class="data-table">
+        <thead><tr><th>Timestamp</th><th>Event</th><th>User</th><th>Result</th></tr></thead>
+        <tbody>
+        {% for e in recent %}
+            <tr>
+                <td class="mono small">{{ e.timestamp }}</td>
+                <td>{{ e.eventType }}</td>
+                <td class="mono small">{{ e.userId or '—' }}</td>
+                <td>{{ e.result or '—' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

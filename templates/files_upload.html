@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Upload Secure File — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<h1>Upload Secure File</h1>
+
+<div class="compose-grid">
+    <section class="panel">
+        <form method="POST" action="{{ url_for('files.upload') }}"
+              enctype="multipart/form-data">
+
+            <label for="recipient_id">Recipient</label>
+            <select id="recipient_id" name="recipient_id" required>
+                <option value="">— Select a recipient —</option>
+                {% for r in recipients %}
+                    <option value="{{ r.userId }}">
+                        {{ r.fullName }} · {{ r.role }} · {{ r.department }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="classification">Classification</label>
+            <select id="classification" name="classification">
+                <option value="PUBLIC">PUBLIC</option>
+                <option value="INTERNAL" selected>INTERNAL</option>
+                <option value="CONFIDENTIAL">CONFIDENTIAL</option>
+                <option value="SECRET">SECRET</option>
+            </select>
+
+            <label for="file">File</label>
+            <input type="file" id="file" name="file" required>
+            <p class="muted small">
+                Maximum {{ (config.MAX_FILE_BYTES // 1024) }} KiB.
+                Permitted types: text, PDF, PNG, JPEG, JSON, CSV, Word documents.
+            </p>
+
+            <button type="submit" class="btn-primary btn-block">
+                Seal &amp; Upload
+            </button>
+        </form>
+    </section>
+
+    <aside class="panel crypto-flow">
+        <h2>What happens when you upload</h2>
+        <ol class="flow">
+            <li><strong>Authorize</strong> — your role is verified server-side.</li>
+            <li><strong>Fingerprint</strong> — SHA-256 of the plaintext is computed for integrity reference.</li>
+            <li><strong>Key establishment</strong> — ML-KEM-768 encapsulates a shared secret to the recipient.</li>
+            <li><strong>Key derivation</strong> — HKDF-SHA-256 derives three independent keys (filename, MIME, content).</li>
+            <li><strong>Encryption</strong> — filename, MIME, and content are each sealed with AES-256-GCM.</li>
+            <li><strong>Signature</strong> — the ciphertext envelope is signed with Ed25519.</li>
+            <li><strong>Storage</strong> — only the sealed envelope plus metadata reach Firestore.</li>
+        </ol>
+        <p class="muted small">
+            The recipient will verify the signature, decapsulate the shared
+            secret, decrypt the three components, and confirm the SHA-256
+            fingerprint matches the stored value.
+        </p>
+    </aside>
+</div>
+{% endblock %}

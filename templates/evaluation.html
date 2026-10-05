@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Evaluation — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Performance Evaluation</h1>
+        <p class="muted">
+            Run cryptographic benchmarks and inspect persisted results.
+            All numbers are measured, never estimated.
+        </p>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Run benchmarks</h2>
+    <div class="form-row">
+        <label>Trials
+            <input type="number" id="trials" value="20" min="1" max="100">
+        </label>
+        <label>Message size (bytes)
+            <input type="number" id="msgsize" value="1024" min="64" max="16384">
+        </label>
+        <button id="run-bench" class="btn-primary">Run</button>
+    </div>
+    <pre id="bench-output" class="ciphertext">Awaiting run…</pre>
+</section>
+
+<section class="panel">
+    <h2>Persisted results</h2>
+    <p class="muted">
+        Download as <a href="{{ url_for('reports.export_benchmarks_csv') }}">CSV</a>.
+    </p>
+    <table class="data-table" id="results-table">
+        <thead><tr><th>Algorithm</th><th>Operation</th><th>Trials</th><th>Timestamp</th></tr></thead>
+        <tbody></tbody>
+    </table>
+</section>
+
+<script>
+document.getElementById("run-bench").addEventListener("click", async () => {
+    const out = document.getElementById("bench-output");
+    out.textContent = "Running benchmarks…";
+    const res = await fetch("{{ url_for('evaluation.run') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+            trials: parseInt(document.getElementById("trials").value, 10),
+            message_size: parseInt(document.getElementById("msgsize").value, 10),
+        }),
+    });
+    const data = await res.json();
+    out.textContent = JSON.stringify(data, null, 2);
+    loadResults();
+});
+
+async function loadResults() {
+    const res = await fetch("{{ url_for('evaluation.results') }}", { credentials: "same-origin" });
+    const data = await res.json();
+    const tbody = document.querySelector("#results-table tbody");
+    tbody.innerHTML = "";
+    (data.rows || []).forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${r.algorithm}</td><td>${r.operation}</td><td>${r.trials}</td><td class="mono small">${r.timestamp}</td>`;
+        tbody.appendChild(tr);
+    });
+}
+loadResults();
+</script>
+{% endblock %}

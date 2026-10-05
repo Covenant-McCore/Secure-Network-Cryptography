@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Secure Files — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Secure Files</h1>
+        <p class="muted">
+            Files are sealed with ML-KEM-768 + HKDF-SHA-256 + AES-256-GCM,
+            fingerprinted with SHA-256, and signed with Ed25519.
+        </p>
+    </div>
+    <a class="btn-primary" href="{{ url_for('files.upload') }}">Upload</a>
+</section>
+
+<nav class="tabs">
+    <a href="{{ url_for('files.index', tab='inbox') }}"
+       class="tab {% if tab == 'inbox' %}tab-active{% endif %}">Inbox</a>
+    <a href="{{ url_for('files.index', tab='sent') }}"
+       class="tab {% if tab == 'sent' %}tab-active{% endif %}">Sent</a>
+</nav>
+
+{% if items %}
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Extension</th>
+            <th>Size</th>
+            <th>Classification</th>
+            <th>SHA-256 (first 16)</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for f in items %}
+        <tr>
+            <td class="mono small">.{{ f.fileExtension or 'bin' }}</td>
+            <td class="mono small">{{ (f.fileSize / 1024) | round(1) }} KiB</td>
+            <td><span class="pill pill-info">{{ f.classification }}</span></td>
+            <td class="mono small">{{ f.fileHash[:16] }}…</td>
+            <td><span class="pill pill-{{ 'ok' if f.status == 'downloaded' else 'info' }}">{{ f.status }}</span></td>
+            <td class="mono small">{{ f.createdAt.strftime('%Y-%m-%d %H:%M') if f.createdAt else '—' }}</td>
+            <td>
+                {% if tab == 'sent' %}
+                    <a href="{{ url_for('files.detail_sent', file_id=f.fileId) }}">Open</a>
+                {% else %}
+                    <a href="{{ url_for('files.detail', file_id=f.fileId) }}">Open</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="panel">
+    <p class="muted">No files yet.
+        <a href="{{ url_for('files.upload') }}">Upload the first one</a>.
+    </p>
+</div>
+{% endif %}
+{% endblock %}

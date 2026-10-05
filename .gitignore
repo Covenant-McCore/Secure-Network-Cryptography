@@ -1,0 +1,45 @@
+# ---------- Secrets ----------
+firebase_credentials.json
+firebase-adminsdk*.json
+serviceAccountKey.json
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ---------- Testing ----------
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ---------- IDE ----------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# ---------- Data outputs ----------
+cryptographic_performance_data.csv
+Figure_*.png
+
+
+# ---------- Local backup files ----------
+*.save
+
+# ---------- Local backup copies ----------
+*.save.*
+*.before-optional-cpabe

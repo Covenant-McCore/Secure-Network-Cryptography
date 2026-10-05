@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Compose Secure Message — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<h1>Compose Secure Message</h1>
+
+<div class="compose-grid">
+    <section class="panel">
+        <form method="POST" action="{{ url_for('messages.compose') }}">
+            <label for="recipient_id">Recipient</label>
+            <select id="recipient_id" name="recipient_id" required>
+                <option value="">— Select a recipient —</option>
+                {% for r in recipients %}
+                    <option value="{{ r.userId }}"
+                        {% if form.get('recipient_id') == r.userId %}selected{% endif %}>
+                        {{ r.fullName }} · {{ r.role }} · {{ r.department }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" name="subject" required
+                   maxlength="200"
+                   value="{{ form.get('subject', '') }}">
+
+            <label for="body">Message</label>
+            <textarea id="body" name="body" rows="10" required
+                      maxlength="8000">{{ form.get('body', '') }}</textarea>
+
+            <button type="submit" class="btn-primary btn-block">
+                Seal &amp; Send
+            </button>
+        </form>
+    </section>
+
+    <aside class="panel crypto-flow">
+        <h2>What happens when you send</h2>
+        <ol class="flow">
+            <li><strong>Authorize</strong> — your role is verified server-side.</li>
+            <li><strong>Key establishment</strong> — ML-KEM-768 encapsulates a shared secret to the recipient's public key.</li>
+            <li><strong>Key derivation</strong> — HKDF-SHA-256 derives two independent session keys from the shared secret.</li>
+            <li><strong>Encryption</strong> — the subject and body are each sealed with AES-256-GCM, producing ciphertext + nonce + auth tag.</li>
+            <li><strong>Signature</strong> — you sign the ciphertext envelope with Ed25519 for authenticity and non-repudiation.</li>
+            <li><strong>Storage</strong> — only the sealed envelope reaches the database. Plaintext never leaves this browser tab.</li>
+        </ol>
+        <p class="muted small">
+            The recipient will reverse the process: verify signature, decapsulate
+            shared secret, derive keys, decrypt, and check the SHA-256 fingerprint.
+        </p>
+    </aside>
+</div>
+{% endblock %}

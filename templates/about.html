@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}About — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="prose">
+    <h1>System Overview</h1>
+
+    <h2>The problem</h2>
+    <p>
+        Digital organizations — hospitals, universities, financial institutions,
+        government agencies — exchange sensitive information across public
+        networks. This creates a set of well-known security requirements:
+        confidentiality, integrity, authentication, authorization, secure key
+        establishment, and auditability. Traditional cryptographic tooling
+        addresses some of these, but emerging threats (in particular quantum
+        computing) require the adoption of post-quantum primitives.
+    </p>
+
+    <h2>The approach</h2>
+    <p>
+        CRYPTO-NET integrates five cryptographic primitives into a single
+        web-based platform:
+    </p>
+    <ul>
+        <li><strong>AES-256-GCM</strong> for authenticated symmetric encryption</li>
+        <li><strong>ML-KEM-768</strong> for post-quantum key establishment</li>
+        <li><strong>HKDF-SHA-256</strong> for session-key derivation</li>
+        <li><strong>Ed25519</strong> for digital signatures</li>
+        <li><strong>CP-ABE (BSW07)</strong> for policy-based access control</li>
+    </ul>
+
+    <h2>Case environment</h2>
+    <p>
+        The platform is generic to any digital organization. A healthcare
+        organization is used as the demonstration environment, with the
+        following roles: Administrator, Security Officer, Doctor, Records
+        Officer, Laboratory Officer.
+    </p>
+
+    <h2>What is demonstrated</h2>
+    <ol>
+        <li>User authentication and role-based authorization</li>
+        <li>Post-quantum secure key establishment between two users</li>
+        <li>End-to-end encrypted messaging with integrity verification</li>
+        <li>Secure file transfer with SHA-256 fingerprints</li>
+        <li>Digital signatures for message authenticity</li>
+        <li>Policy-based access control over encrypted data</li>
+        <li>Audit logging and security monitoring</li>
+        <li>Controlled threat simulations</li>
+    </ol>
+</section>
+{% endblock %}

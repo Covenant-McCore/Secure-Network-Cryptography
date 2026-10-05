@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Integrity Lab — CRYPTO-NET{% endblock %}
+
+{% block content %}
+<section class="dash-head">
+    <div>
+        <h1>Integrity Verification Lab</h1>
+        <p class="muted">
+            SHA-256 fingerprinting: hash an original message, then modify
+            it and observe the digest change entirely.
+        </p>
+    </div>
+    <a class="btn-secondary" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+</section>
+
+<div class="compose-grid">
+    <section class="panel">
+        <h2>Inputs</h2>
+        <label for="int-original">Original message</label>
+        <input type="text" id="int-original" value="Balance: NGN 500,000.">
+        <label for="int-modified">Modified message</label>
+        <input type="text" id="int-modified" value="Balance: NGN 900,000.">
+        <button id="run-int" class="btn-primary btn-block">Compare hashes</button>
+    </section>
+
+    <section class="panel">
+        <h2>Result</h2>
+        <pre id="int-output" class="ciphertext">Awaiting run…</pre>
+    </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/labs.js') }}"></script>
+<script>
+document.getElementById('run-int').addEventListener('click', () => {
+    runLab(null, "{{ url_for('crypto_lab.integrity_run') }}",
+           document.getElementById('int-output'), () => ({
+               original: document.getElementById('int-original').value,
+               modified: document.getElementById('int-modified').value,
+           }));
+});
+</script>
+{% endblock %}
